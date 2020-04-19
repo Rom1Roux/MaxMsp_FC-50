@@ -1,0 +1,1 @@
+# FC-50 jascript 1.0
