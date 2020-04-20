@@ -2,12 +2,13 @@
 ## Presentation
 My name is [Romain Roux](https://www.romainroux.com), musician and sound artist with the [collectif OKTO](https://www.collectif-okto.com).
 
-Here is a MaxMsp project to use [BOSS FC-50](https://fr.audiofanzine.com/pedalier-midi/boss/fc-50/) pedalboard on your favorite DAW. 
-*I guess than you can use this patch with [Roland GFC-50](https://www.roland.com/fr/products/gfc-50/)*.
+Here is a MaxMsp project to use [BOSS FC-50](https://fr.audiofanzine.com/pedalier-midi/boss/fc-50/) pedalboard on your favorite DAW (*i guess than you can use this patch with [Roland GFC-50](https://www.roland.com/fr/products/gfc-50/)*).
+FC-50 has 5 pedals (1 to 5) to choice effect number and a sixth to go from 6 to 10 (A/B). Then you have 12 bank to get more midi output. So, you have a total of 128 pedals !! 
+You can also connect two expression pedals and two swithes pedals.
 
 FC-50 send ProgramChange [1] and this patch convert ProgramChange in Note or Control Change with javascript object. You can configure each midi output in the parameter window.
 
-[1] The program change is a MIDI message to trigger a change of effects or instruments - depending on the Midi device you are using
+[1] *The program change is a MIDI message to trigger a change of effects or instruments - depending on the Midi device you are using.*
 ___
 ## What is Max
 *"Max is an infinitely flexible place to create interactive media software. With in-depth tools for audio, graphics, interaction, and communication, Max is an environment to explore and develop your own ideas."*
