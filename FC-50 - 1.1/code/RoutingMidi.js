@@ -3,7 +3,7 @@ inlets = 3;
 outlets = 8;
 
 /*** global variables ***/
-var firstTimeRun = true;
+var firstTimeRun = 1;
 var output = {};
 var lastNumber = 0;
 var A_B = 0;
@@ -13,6 +13,7 @@ var maxValue = 127;
 var choicePost = ["Note", "Control Change"]; 
 var modePost   = ["one-shot","toggle"];
 
+var presetA = [0,1,2,3,4,10,11,12,13,14,20,21,22,23,24,30,31,32,33,34,40,41,42,43,44,50,51,52,53,54, 60,61,62,63,64, 70,71,72,73,74, 80,81,82,83,84,90,91,92,93,94,100,101,102,103,104,110,111,112,113,114, 120,121,122,123,124];
 
 /**
  * receive Program Change signal of BOSS FC-50 - values is stored in object (output) in the global variables
@@ -24,6 +25,7 @@ var modePost   = ["one-shot","toggle"];
  * outlet3 return channel number (1 to 16)
  * outlet4 return number of A/B (0 or 1)
  * outlet5 return number of bank (0 to 12)
+ * outlet6 return pedal number selected (program change + 1) 
  */
 function midiRouting(newNumber) {
 
@@ -55,20 +57,10 @@ function midiRouting(newNumber) {
  
   }
 
-  if (newNumber === lastNumber - 5) {
-    A_B = 0;
-  }
-  if (newNumber === lastNumber + 5) {
-    A_B = 1;
-  }
-  if (newNumber === lastNumber - 10) {
-    bank = bank - 1;
-    bank < 0 && (bank = 0);
-  }
-  if (newNumber === lastNumber + 10) {
-    bank = bank + 1;
-    bank > 12 && (bank = 12);
-  }
+  A_B = findPresetA_B(newNumber);
+  
+  bank = findBank(newNumber);
+
 
   // object js output
   outlet(0, output[newNumber]["choiceNoteCc"]);
@@ -84,6 +76,12 @@ function midiRouting(newNumber) {
   lastNumber = newNumber;
 
   // Max console post
+  var resultFunction = findPedalAndBank(programChange);
+  var pedalNumber = resultFunction.pedalNumber;
+
+  post("*** Pedal number "+ pedalNumber + " ***");
+  post();
+
   post('A/B : ' + A_B);
   post();
 
@@ -143,27 +141,27 @@ function uploadPreset(programChange, choiceNoteCc, mode, routeOut, channel){
 	var pedalNumber = resultFunction.pedalNumber;
 	var bank = resultFunction.bank;
 	
-	if (!firstTimeRun){
-	post('*** Pedal ' + pedalNumber + ' uploaded ! ***');
-	post();
+	if (firstTimeRun == 0){
+		post('*** Pedal ' + pedalNumber + ' uploaded ! ***');
+		post();
 	
-	post('bank : ' + bank);
-  	post();
+		post('bank : ' + bank);
+  		post();
 	
-	post('Choice : ' + choicePost[ output[programChange]["choiceNoteCc"] ]);
-	post();
+		post('Choice : ' + choicePost[ output[programChange]["choiceNoteCc"] ]);
+		post();
 	
-	post('Mode : ' + modePost[ output[programChange]["mode"] ]);
-	post();
+		post('Mode : ' + modePost[ output[programChange]["mode"] ]);
+		post();
 	
-	post('Note/Cc Midi out : ' +output[programChange]["routeOut"]);
-	post();
+		post('Note/Cc Midi out : ' +output[programChange]["routeOut"]);
+		post();
 	
-	post('midi channel : ' +output[programChange]["channel"]);
-	post();
+		post('midi channel : ' +output[programChange]["channel"]);
+		post();
 	
-	post('---------------------------------');
-    post();
+		post('---------------------------------');
+    	post();
 	
 	}
 	
@@ -217,6 +215,45 @@ function loadObjectPreset(str){
 }
 
 
-function blockConsoleMax(){
-	firstTimeRun = false;
+/**
+* Block post (console Max) in uploadPreset function  when upload preset the 1st time
+* @param{number} response is 0 or 1 (false or true)
+* outlet4 return number of A/B (0 if response is 1)
+* outlet5 return number of bank (0 if response is 1)
+*/
+function blockConsoleMax(response){
+	firstTimeRun = response;
+	
+	if (response == 1){
+		outlet(4, 0);
+        outlet(5, 0);	
+	}
+}
+
+
+function findBank(value){
+	var str = value.toString();
+	var result;
+
+	switch(str.length){
+  		case 2:
+    	result = str[0];
+    	break;
+  
+		case 3:
+    	result = str[0] + str[1];
+    	break;
+  
+		default:
+    	result = "0";
+    	break;
+	}
+	
+	return parseInt(result, 10);
+}
+
+
+function findPresetA_B(value){
+  var found = presetA.filter(function(element){ return element === value})[0];
+  return found === value ? 0 : 1;
 }
